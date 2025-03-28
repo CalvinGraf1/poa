@@ -1,0 +1,222 @@
+@startuml
+
+skinparam ClassAttributeIconSize 0
+
+
+/' Objects '/
+
+class Bank {
+	+Bank(const std::string& name)
+	+Bank(const std::string& name, std::list<const Person*> people)
+	+clone() : Container* {query}
+}
+
+
+class Boat {
+	-maxCapacity : const size_t
+	-{static} BOAT_FULL : const std::string
+	+Boat(const std::string& name, const Bank& currentBank)
+	+getCurrentBank() : Bank* {query}
+	+hasDriver() : bool {query}
+	+toString() : std::string {query}
+	+addPerson(const Person* person) : void
+	+move(const Bank& to) : void
+	+setBank(const Bank* bank) : void
+	+clone() : Container* {query}
+}
+
+
+class Child {
+	#Child(const std::string& name, const Parent& mother, const Parent& father)
+    #getMother() : const Parent& {query}
+    #getFather() : const Parent& {query}
+}
+
+
+abstract class Container {
+	#Container(const std::string& name)
+	#Container(const std::string& name, std::list<const Person*> people)
+	+~Container()
+	+Container(const Container&)
+	+contains(const Person& person) : bool {query}
+	+isEmpty() : bool {query}
+	-{static} PERSON_NOT_FOUND : const std::string
+	-name : const std::string
+	+size() : size_t {query}
+	+getPeople() : std::list<const Person*>& {query}
+	+peopleToString() : const std::string {query}
+	+getName() : std::string {query}
+	+toString() : std::string {query}
+	+addPerson(const Person* person) : void
+	+clear() : void
+	+removePerson(const Person* person) : void
+}
+
+
+class Controller {
+	+Controller(std::initializer_list<const Person*> people)
+	+~Controller()
+	-findPerson(const std::string& name) : Person* {query}
+	-checkWin() : bool {query}
+	-validateContainer(const Person* person, Container* container) : bool
+	-validateContainerAfterAdding(const Person* person, Container* container) : bool
+	-validateContainerAfterRemoval(const Person* person, Container* container) : bool
+	-LENGTH_DISPLAY : const int
+	-turn : int
+	-{static} DISEMBARK : const char
+	-{static} DISPLAY : const char
+	-{static} EMBARK : const char
+	-{static} MENU : const char
+	-{static} MOVE : const char
+	-{static} QUIT : const char
+	-{static} RESET : const char
+	-{static} MSG_EMBARK_MSG_DISEMBARK : const std::string
+	-{static} MSG_NOT_ON_BOAT_BANK : const std::string
+	-{static} MSG_NOT_IN_GAME : const std::string
+	-{static} MSG_WIN : const std::string
+	-{static} EMBARK_DEF : const std::string
+	-{static} DISEMBARK_DEF : const std::string
+	-{static} MOVE_DEF : const std::string
+	-{static} RESET_DEF : const std::string
+	-{static} QUIT_DEF : const std::string
+	-{static} MENU_DEF : const std::string
+	-{static} INVALID_CMD : const std::string
+	-disembark(const Person* person) : void
+	+display() : void
+	-displayError(const std::string& error) : void {query}
+	-embark(const Person* person) : void
+	-fill(const Bank* bank) : void {query}
+	-moveBoat(Bank* to) : void
+	-movePerson(const Person* person, Container* from, Container* to) : void
+	-processMove(const Person* person, Container* from, Container* to) : void
+	-reset() : void
+	+run() : void
+	-showMenu() : void {query}
+	-nextTurn() : void
+	-canEmbarkDisembark(istringsteam& iss) : const Person* {query}
+}
+
+
+class Daughter {
+	+Daughter(const std::string& name, const Parent& mother, const Parent& father)
+	+isValid(const Container& container) : Validation {query}
+	-{static} ERROR_MESSAGE : const std::string
+}
+
+
+class Driver {
+	#Driver(const std::string& name)
+	+canDrive() : bool {query}
+}
+
+
+class NoDriver {
+	#NoDriver(const std::string& name)
+	+canDrive() : bool {query}
+}
+
+
+class Parent {
+	+Parent(const std::string& name)
+	+isValid(const Container& container) : Validation {query}
+}
+
+
+abstract class Person {
+	#Person(const std::string& name)
+	+{abstract} isValid(const Container& container) : Validation {query}
+	+{abstract} canDrive() : bool {query}
+	-name : const std::string
+	+getName() : std::string {query}
+}
+
+
+class Policeman {
+	+Policeman(const std::string& name)
+	+isValid(const Container& container) : Validation {query}
+}
+
+
+class Son {
+	+Son(const std::string& name, const Parent& mother, const Parent& father)
+	+isValid(const Container& container) : Validation {query}
+	-{static} ERROR_MESSAGE : const std::string
+}
+
+
+class Thief {
+	-{static} ERROR_MESSAGE : const std::string
+	+Thief(const std::string& name, const Policeman& policeman)
+	+isValid(const Container& container) : Validation {query}
+}
+
+
+class Validation {
+	-Validation(bool state, std::optional<std::string> error)
+	+{static} invalid(std::string error) : Validation
+	+{static} valid() : Validation
+	+getState() : bool {query}
+	-state : bool
+	-error : std::optional<std::string>
+	+getErrorMessage() : std::string {query}
+}
+
+
+
+
+
+/' Inheritance relationships '/
+
+.Child <|-- .Daughter
+
+
+.Child <|-- .Son
+
+
+.Container <|-- .Bank
+
+
+.Container <|-- .Boat
+
+
+.Driver <|-- .Parent
+
+
+.Driver <|-- .Policeman
+
+
+.NoDriver <|-- .Child
+
+
+.NoDriver <|-- .Thief
+
+
+.Person <|-- .Driver
+
+
+.Person <|-- .NoDriver
+
+
+
+
+
+/' Associations '/
+
+Person "*" <-- "1" Container : contient
+Person "*" <-- "*" Controller : contient
+Bank "1" <-- "1" Controller : -left
+Bank "1" <-- "1" Controller : -right
+Boat "1" <-- "1" Controller : -boat
+Boat "*" --> "1" Bank : -currentBank
+Child "*" --> "1" Parent : -mother
+Child "*" --> "1" Parent : -father
+Thief "*" --> "1" Policeman : -policeman
+
+
+
+
+/' Nested objects '/
+
+
+
+@enduml

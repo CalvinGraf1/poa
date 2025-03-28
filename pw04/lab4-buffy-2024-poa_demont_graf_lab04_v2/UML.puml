@@ -1,0 +1,171 @@
+@startuml
+
+skinparam ClassAttributeIconSize 0
+
+/' Objects '/
+
+abstract class Action {
+ +Action(Humanoid& humanoid)
+ +~Action()
+ +getHumanoid() : Humanoid* {query}
+ +{abstract} execute(Field& f) : void
+}
+
+class Buffy {
+ +Buffy(const Position& position)
+ +getNextAction(const Field& field) : Action*
+ +display() : char {query}
+ -{static} KILL_RANGE : static constexpr size_t
+ -{static} MOVE_RANGE : static constexpr size_t
+}
+
+class Controller {
+ +Controller(const size_t width, const size_t height, size_t nbHumans, size_t nbVampires)
+ -display : Display
+ -field : Field
+ -finished : bool
+ +{static} QUIT : static constexpr char
+ -{static} NB_SIMULATIONS : static constexpr size_t
+ -handleCommand() : void
+ -nextTurn() : void
+ -quit() : void
+ +run() : void
+ -statistics() : void
+}
+
+class Display {
+ +Display(const Field& field)
+ -field : const Field&
+ -{static} CORNER : static constexpr char
+ -gameBoard : std::vector<std::vector<const Humanoid*>>
+ +clearGameBoard() : void
+ +print() : void
+ -printHorizontalBorder(const Field& field) : void {query}
+ +printPrompt() : void {query}
+}
+
+class Field {
+ +Field(const size_t width, const size_t height, size_t nbHumans, size_t nbVampires)
+ +findClosest(const Humanoid& h) : T* {query}
+ -height : const size_t
+ -width : const size_t
+ +getTurn() : int {query}
+ +nextTurn() : int
+ -turn : int
+ +getHeight() : size_t {query}
+ +getNbHuman() : size_t {query}
+ +getNbVampire() : size_t {query}
+ +getWidth() : size_t {query}
+ -nbHumans : size_t
+ -nbVampires : size_t
+ +getHumanoids() : std::list<Humanoid*> {query}
+ -humanoids : std::list<Humanoid*>
+ +addHumanoid(Humanoid* humanoid) : void
+ +humanDie() : void
+ +vampireBorn() : void
+ +vampireDie() : void
+}
+
+class Human {
+ +Human(const Position& position)
+ +getNextAction(const Field& field) : Action*
+ +display() : char {query}
+ +{static} getMoveRange() : size_t
+ -{static} MOVE_RANGE : static constexpr size_t
+ +die(Field& field) : void
+}
+
+abstract class Humanoid {
+ +Humanoid(const Position& pos)
+ +~Humanoid()
+ +{abstract} getNextAction(const Field& field) : Action*
+ +getPosition() : Position& {query}
+ -alive : bool
+ +isAlive() : bool {query}
+ +{abstract} display() : char {query}
+ +die(Field& field) : void
+ +executeAction(Field& field) : void
+ +setAction(Field& field) : void
+ +setPosition(Position pos) : void
+}
+
+class Kill {
+ +Kill(Humanoid& humanoid)
+ +execute(Field& f) : void
+}
+
+class Move {
+ +Move(const size_t range, Humanoid& humanoid, const Humanoid* target)
+ -target : const Humanoid*
+ -range : size_t
+ +getDirectionsPossible(const Position& pos, const Field& field) : std::vector<const Position*> {query}
+ +execute(Field& field) : void
+}
+
+class Position {
+ +Position()
+ +Position(size_t x, size_t y)
+ +getDirection(const Position& pos) : Position {query}
+ +{static} random(size_t width, size_t height) : Position
+ +distance(const Position& pos) : size_t {query}
+ +getX() : size_t {query}
+ +getY() : size_t {query}
+ -x : size_t
+ -y : size_t
+ +{static} DOWN : static const Position
+ +{static} DOWN_LEFT : static const Position
+ +{static} DOWN_RIGHT : static const Position
+ +{static} LEFT : static const Position
+ +{static} RIGHT : static const Position
+ +{static} UP : static const Position
+ +{static} UP_LEFT : static const Position
+ +{static} UP_RIGHT : static const Position
+ +move(const Position& direction) : void
+}
+
+class Random {
+ +{static} generateBool() : bool
+ +{static} generateInt(int min, int max) : int
+ +{static} generateInt(int max) : int
+ -{static} gen : static std::mt19937
+}
+
+class Transform {
+ +Transform(Humanoid& humanoid)
+ +execute(Field& f) : void
+}
+
+class Vampire {
+ +Vampire(const Position& position)
+ +getNextAction(const Field& field) : Action*
+ +display() : char {query}
+ -{static} KILL_RANGE : static constexpr size_t
+ -{static} MOVE_RANGE : static constexpr size_t
+ +die(Field& field) : void
+}
+
+class statisticsCalculator {
+ +{static} simulate(size_t width, size_t height, size_t nbHuman, size_t nbVampire, size_t nbSimulations) : double
+}
+
+Action <|-- Kill
+Action <|-- Move
+Action <|-- Transform
+Humanoid <|-- Buffy
+Humanoid <|-- Human
+Humanoid <|-- Vampire
+
+Action "1" -u-> "1" Humanoid : -humanoid
+Controller "1" --> "1" Display : -display
+Controller "1" --> "1" Field : -field
+Display "1" --> "1" Field : -field
+
+/' A checker !!!!! '/
+Display "1" --> "0..*" Humanoid : -gameBoard
+
+Field "1" --> "0..*" Humanoid : -humanoids
+Humanoid "1" --> "1" Action : -action
+Humanoid "1" -r-> "1" Position : -position
+Move "1" --> "1" Humanoid : -target
+
+@enduml

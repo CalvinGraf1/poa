@@ -1,0 +1,53 @@
+@startuml
+
+class Matrix {
+    - values: int**
+    - rows: int
+    - columns: int
+    - modulo: int
+    + Matrix(rows: int, columns: int, modulo: int)
+    + Matrix(other: const Matrix&)
+    + Matrix(other: Matrix&&) noexcept
+    + ~Matrix()
+    + operator=(other: const Matrix&): Matrix&
+    + operator=(other: Matrix&&): Matrix&
+    + addItself(other: const Matrix&): Matrix&
+    + subtractItself(other: const Matrix&): Matrix&
+    + multiplyItself(other: const Matrix&): Matrix&
+    + operator<<(os: std::ostream&, matrix: const Matrix&): std::ostream&
+    - freeMemory(): void
+    - checkValuesIntegrity(m: const int&, n: const int&, mod: const int&): void
+    - checkMatrixDimensions(other: const Matrix&): void
+    - performOperation(other: const Matrix&, operation: const MatrixOperation&): void
+    - getValue(row: int, col: int): int
+}
+
+class MatrixOperation {
+    + perform(a: int, b: int): int
+}
+
+class MatrixAddition {
+    + perform(a: int, b: int): int
+}
+
+class MatrixSubtraction {
+    + perform(a: int, b: int): int
+}
+
+class MatrixMultiplication {
+    + perform(a: int, b: int): int
+}
+
+
+note "+ addStatic(matrix1: const Matrix&, matrix2: const Matrix&): Matrix\n+ addDynamic(matrix1: const Matrix&, matrix2: const Matrix&): Matrix*\n+ subtractStatic(matrix1: const Matrix&, matrix2: const Matrix&): Matrix\n+ subtractDynamic(matrix1: const Matrix&, matrix2: const Matrix&): Matrix*\n+ multiplyStatic(matrix1: const Matrix&, matrix2: const Matrix&): Matrix\n+ multiplyDynamic(matrix1: const Matrix&, matrix2: const Matrix&): Matrix*" as NoteName
+
+
+class Utils {
+    + mathModulo(a: const int&, b: const int&): int
+}
+
+MatrixOperation <|-- MatrixAddition
+MatrixOperation <|-- MatrixSubtraction
+MatrixOperation <|-- MatrixMultiplication
+
+@enduml

@@ -1,0 +1,146 @@
+@startuml
+
+skinparam ClassAttributeIconSize 0
+
+/' Objects '/
+
+abstract class CargoShip {
+	#CargoShip(size_t id, double max, const std::string& nickname, double cargo)
+	-cargo : double
+	+{abstract} cargoLimit() : double {query}
+	+{abstract} emptyWeight() : double {query}
+	+getCargo() : double {query}
+	+weight() : double {query}
+	+formatToStream(std::ostream& os) : std::ostream& {query}
+	-checkCargo(double cargo, double max) : void {query}
+	+setCargo(double cargo) : void
+}
+
+
+class Destroyer {
+	+Destroyer(double cargo, const std::string& nickname)
+	+cargoLimit() : double {query}
+	+emptyWeight() : double {query}
+	+speed() : size_t {query}
+	-{static} lastDestroyerId : static size_t
+	+model() : std::string {query}
+}
+
+
+class Interceptor {
+	+Interceptor(const std::string& nickname)
+	+weight() : double {query}
+	+speed() : size_t {query}
+	-{static} lastInterceptorId : static size_t
+	+model() : std::string {query}
+}
+
+
+abstract class Ship {
+	#Ship(size_t id, const std::string& nickname)
+	+~Ship()
+	+isEqual(const Ship& other) : bool {query}
+	+consumption(double distance) : double {query}
+	+consumption(double distance, size_t speed) : double {query}
+	+{abstract} weight() : double {query}
+	-id : size_t
+	+{abstract} speed() : size_t {query}
+	+formatToStream(std::ostream& os) : std::ostream& {query}
+	+{abstract} model() : std::string {query}
+	-nickname : std::string
+	+setNickname(const std::string& nickname) : void
+}
+
+
+class Shuttle {
+	+Shuttle(double cargo, const std::string& nickname)
+	+cargoLimit() : double {query}
+	+emptyWeight() : double {query}
+	+speed() : size_t {query}
+	-{static} lastShuttleId : static size_t
+	+model() : std::string {query}
+}
+
+
+class Squadron {
+	+Squadron(std::string name)
+	+Squadron(const Squadron& other)
+	+Squadron(Squadron&& other)
+	+~Squadron()
+	-head : Members*
+	+getShip(int index) : Ship& {query}
+	+operator[](size_t index) : Ship& {query}
+	-leader : Ship*
+	+addShipCopy(Ship& ship) : Squadron {query}
+	+operator+(Ship& ship) : Squadron
+	+operator-(Ship& ship) : Squadron
+	+removeShipCopy(Ship& ship) : Squadron {query}
+	+addShip(Ship& ship) : Squadron&
+	+operator+=(Ship& ship) : Squadron&
+	+operator-=(Ship& ship) : Squadron&
+	+operator=(const Squadron& other) : Squadron&
+	+operator=(Squadron&& other) : Squadron&
+	+removeShip(Ship& ship) : Squadron&
+	+computeConsumption(double distance, size_t speed) : double {query}
+	-size : size_t
+	+operator<<(std::ostream& os, const Squadron& squadron) : std :: ostream&
+	+toStream(std::ostream& os) : std::ostream& {query}
+	+getName() : std::string {query}
+	-name : std::string
+	-copyAllShips(const Squadron& squadron) : void
+	+copyOfSquadron(const Squadron& other) : void
+	-freeMemory() : void
+	+init(std::string name, Ship* leader) : void
+	+removeLeader() : void
+	-removeShip(const Ship& ship) : void
+	+setLeader(Ship& leader) : void
+	+setName(const std::string& name) : void
+}
+
+
+class TIE {
+	+TIE(const std::string& nickname)
+	+weight() : double {query}
+	+speed() : size_t {query}
+	-{static} lastTIEId : static size_t
+	+model() : std::string {query}
+}
+
+
+
+
+
+/' Inheritance relationships '/
+
+.CargoShip <|-- .Destroyer
+
+
+.CargoShip <|-- .Shuttle
+
+
+.Ship <|-- .CargoShip
+
+
+.Ship <|-- .Interceptor
+
+
+.Ship <|-- .TIE
+
+
+
+
+
+/' Aggregation relationships '/
+
+.Squadron "*" o-- "*" .Ship : "contient >"
+
+
+
+
+
+
+/' Nested objects '/
+
+
+
+@enduml
